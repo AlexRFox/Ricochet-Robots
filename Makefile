@@ -1,6 +1,8 @@
 ricochet:
-	python genmap.py
 	python ricochet.py
+
+createmap:
+	python createmap.py
 
 clean:
 	rm -f *~

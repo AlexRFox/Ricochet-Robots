@@ -56,15 +56,6 @@ def draw ():
     if selected:
         pygame.draw.rect (screen, (0xff, 0xff, 0x0), selected.box, 3)
 
-        if selected.left:
-            pygame.draw.rect (screen, (0x0, 0x0, 0xff), selected.left.box, 2)
-        if selected.right:
-            pygame.draw.rect (screen, (0x0, 0x0, 0xff), selected.right.box, 2)
-        if selected.up:
-            pygame.draw.rect (screen, (0x0, 0x0, 0xff), selected.up.box, 2)
-        if selected.down:
-            pygame.draw.rect (screen, (0x0, 0x0, 0xff), selected.down.box, 2)
-
 def gengrid ():
     grid = []
     for x in range (16):
@@ -102,8 +93,6 @@ def mkwalls (grid):
                 data.append (int (num))
 
         coords = data[:2]
-        print data
-        print coords
 
         cursquare = grid[coords[0]][coords[1]]
 
@@ -128,6 +117,34 @@ def mkwalls (grid):
 
     return grid
 
+def savemap ():
+    file = open ("./first.map", 'w')
+
+    string = ""
+    for row in grid:
+        for square in row:
+            string += str (square.coords)
+            if square.left:
+                string += " 0"
+            else:
+                string += " 1"
+            if square.right:
+                string += " 0"
+            else:
+                string += " 1"
+            if square.up:
+                string += " 0"
+            else:
+                string += " 1"
+            if square.down:
+                string += " 0"
+            else:
+                string += " 1"
+            string += "\n"
+
+    file.write (string)
+    file.close ()
+
 pygame.init ()
 
 screen = pygame.display.set_mode ((640, 640))
@@ -141,6 +158,8 @@ mousepos = pygame.mouse.get_pos ()
 
 selected = None
 
+state = 0
+
 while True:
     for event in pygame.event.get ():
         if event.type == QUIT:
@@ -148,6 +167,72 @@ while True:
         elif event.type == KEYDOWN:
             if event.key == K_ESCAPE:
                 sys.exit ()
+            elif event.key == K_DELETE:
+                if selected and state == 0:
+                    try:
+                        left = grid[selected.coords[0]-1][selected.coords[1]]
+                    except:
+                        left = None
+                    try:
+                        right = grid[selected.coords[0]+1][selected.coords[1]]
+                    except:
+                        right = None
+                    try:
+                        up = grid[selected.coords[0]][selected.coords[1]-1]
+                    except:
+                        up = None
+                    try:
+                        down = grid[selected.coords[0]][selected.coords[1]+1]
+                    except:
+                        down = None
+
+                    if left:
+                        selected.left = left
+                        selected.left.right = selected
+                    if right:
+                        selected.right = right
+                        selected.right.left = selected
+                    if up:
+                        selected.up = up
+                        selected.up.down = selected
+                    if down:
+                        selected.down = down
+                        selected.down.up = selected
+            elif event.key == K_LEFT:
+                if selected and selected.left:
+                    selected = selected.left
+            elif event.key == K_RIGHT:
+                if selected and selected.right:
+                    selected = selected.right
+            elif event.key == K_UP:
+                if selected and selected.up:
+                    selected = selected.up
+            elif event.key == K_DOWN:
+                if selected and selected.down:
+                    selected = selected.down
+            elif event.unicode == 's':
+                if state == 1:
+                    savemap ()
+                    sys.exit ()
+                state += 1
+            elif event.unicode == 'u':
+                if state == 0 and selected and selected.up:
+                    selected.up.down = None
+                    selected.up = None
+            elif event.unicode == 'd':
+                if state == 0 and selected and selected.down:
+                    selected.down.up = None
+                    selected.down = None
+            elif event.unicode == 'l':
+                if state == 0 and selected and selected.left:
+                    selected.left.right = None
+                    selected.left = None
+            elif event.unicode == 'r':
+                if state == 0 and selected and selected.right:
+                    selected.right.left = None
+                    selected.right = None
+                elif state == 1:
+                    
         elif event.type == MOUSEMOTION:
             mousepos = event.pos
         elif event.type == MOUSEBUTTONDOWN:
@@ -158,3 +243,5 @@ while True:
 
     draw ()
     pygame.display.flip ()
+
+    pygame.time.wait (100)
