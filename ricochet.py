@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-import pygame, sys, re, random
+import pygame, sys, re, random, copy
 from pygame.locals import *
 
 class Square:
@@ -24,9 +24,10 @@ class Robot:
         self.square = square
 
 class Symbol:
-    def __init__ (self, img, color, square = None):
+    def __init__ (self, img, color, type, square = None):
         self.img = img
         self.color = color
+        self.type = type
         self.square = square
 
 def draw ():
@@ -223,26 +224,46 @@ def loadmap (grid):
 def check_target (target):
     if target.color == 'red':
         if target.square == red.square:
-            symcolor = random.choice (symbols.keys ())
-            symtype = random.choice (symbols[symcolor].keys ())
-            target = symbols[symcolor][symtype]
+            foundsymbols.append (target)
+            if len (foundsymbols) == 16:
+                end_game ()
+            while foundsymbols.count (target):
+                symcolor = random.choice (symbols.keys ())
+                symtype = random.choice (symbols[symcolor].keys ())
+                target = symbols[symcolor][symtype]
     elif target.color == 'blue':
         if target.square == blue.square:
-            symcolor = random.choice (symbols.keys ())
-            symtype = random.choice (symbols[symcolor].keys ())
-            target = symbols[symcolor][symtype]
+            foundsymbols.append (target)
+            if len (foundsymbols) == 16:
+                end_game ()
+            while foundsymbols.count (target):
+                symcolor = random.choice (symbols.keys ())
+                symtype = random.choice (symbols[symcolor].keys ())
+                target = symbols[symcolor][symtype]
     elif target.color == 'green':
         if target.square == green.square:
-            symcolor = random.choice (symbols.keys ())
-            symtype = random.choice (symbols[symcolor].keys ())
-            target = symbols[symcolor][symtype]
+            foundsymbols.append (target)
+            if len (foundsymbols) == 16:
+                end_game ()
+            while foundsymbols.count (target):
+                symcolor = random.choice (symbols.keys ())
+                symtype = random.choice (symbols[symcolor].keys ())
+                target = symbols[symcolor][symtype]
     elif target.color == 'yellow':
         if target.square == yellow.square:
-            symcolor = random.choice (symbols.keys ())
-            symtype = random.choice (symbols[symcolor].keys ())
-            target = symbols[symcolor][symtype]
+            foundsymbols.append (target)
+            if len (foundsymbols) == 16:
+                end_game ()
+            while foundsymbols.count (target):
+                symcolor = random.choice (symbols.keys ())
+                symtype = random.choice (symbols[symcolor].keys ())
+                target = symbols[symcolor][symtype]
 
     return target
+
+def end_game ():
+    print "done"
+    exit ()
 
 pygame.init ()
 
@@ -260,13 +281,13 @@ symbols = {'red': {}, 'blue': {}, 'green': {}, 'yellow': {}}
 
 for color in symbols:
     symbols[color]['bio'] = Symbol (pygame.image.load
-                                    ("./" + color + "bio.png"), color)
+                                    ("./" + color + "bio.png"), color, 'bio')
     symbols[color]['hex'] = Symbol (pygame.image.load
-                                    ("./" + color + "hex.png"), color)
+                                    ("./" + color + "hex.png"), color, 'hex')
     symbols[color]['tar'] = Symbol (pygame.image.load
-                                    ("./" + color + "tar.png"), color)
+                                    ("./" + color + "tar.png"), color, 'tar')
     symbols[color]['tri'] = Symbol (pygame.image.load
-                                    ("./" + color + "tri.png"), color)
+                                    ("./" + color + "tri.png"), color, 'tri')
 
 grid = gengrid ()
 
@@ -275,7 +296,10 @@ mousepos = pygame.mouse.get_pos ()
 selected = None
 symcolor = random.choice (symbols.keys ())
 symtype = random.choice (symbols[symcolor].keys ())
-target = symbols[symcolor][symtype]
+#target = symbols[symcolor][symtype]
+target = symbols['red']['tar']
+
+foundsymbols = []
 
 while True:
     for event in pygame.event.get ():
