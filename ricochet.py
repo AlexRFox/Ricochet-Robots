@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-import pygame, sys, re
+import pygame, sys, re, random
 from pygame.locals import *
 
 class Square:
@@ -37,6 +37,17 @@ def draw ():
             screen.blit (square.img, (square.coords[0] * 40,
                                       square.coords[1] * 40))
 
+    for color in symbols:
+        for form in symbols[color]:
+            if symbols[color][form].square:
+                screen.blit (symbols[color][form].img,
+                             (symbols[color][form].square.coords[0] * 40,
+                              symbols[color][form].square.coords[1] * 40))
+
+    if target:
+        screen.blit (target.img, (grid[7][7].box.center,
+                                  grid[8][8].box.center))
+
     if red.square:
         screen.blit (red.img, (red.square.coords[0] * 40,
                                red.square.coords[1] * 40))
@@ -49,13 +60,6 @@ def draw ():
     if yellow.square:
         screen.blit (yellow.img, (yellow.square.coords[0] * 40,
                                   yellow.square.coords[1] * 40))
-
-    for color in symbols:
-        for form in symbols[color]:
-            if symbols[color][form].square:
-                screen.blit (symbols[color][form].img,
-                             (symbols[color][form].square.coords[0] * 40,
-                              symbols[color][form].square.coords[1] * 40))
 
     for row in grid:
         for square in row:
@@ -216,6 +220,30 @@ def loadmap (grid):
 
     return grid
 
+def check_target (target):
+    if target.color == 'red':
+        if target.square == red.square:
+            symcolor = random.choice (symbols.keys ())
+            symtype = random.choice (symbols[symcolor].keys ())
+            target = symbols[symcolor][symtype]
+    elif target.color == 'blue':
+        if target.square == blue.square:
+            symcolor = random.choice (symbols.keys ())
+            symtype = random.choice (symbols[symcolor].keys ())
+            target = symbols[symcolor][symtype]
+    elif target.color == 'green':
+        if target.square == green.square:
+            symcolor = random.choice (symbols.keys ())
+            symtype = random.choice (symbols[symcolor].keys ())
+            target = symbols[symcolor][symtype]
+    elif target.color == 'yellow':
+        if target.square == yellow.square:
+            symcolor = random.choice (symbols.keys ())
+            symtype = random.choice (symbols[symcolor].keys ())
+            target = symbols[symcolor][symtype]
+
+    return target
+
 pygame.init ()
 
 screen = pygame.display.set_mode ((640, 640))
@@ -245,6 +273,9 @@ grid = gengrid ()
 mousepos = pygame.mouse.get_pos ()
 
 selected = None
+symcolor = random.choice (symbols.keys ())
+symtype = random.choice (symbols[symcolor].keys ())
+target = symbols[symcolor][symtype]
 
 while True:
     for event in pygame.event.get ():
@@ -296,6 +327,8 @@ while True:
                 for square in row:
                     if square.box.collidepoint (mousepos) and square.robot:
                         selected = square
+
+    target = check_target (target)
 
     draw ()
     pygame.display.flip ()
