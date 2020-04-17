@@ -1,110 +1,119 @@
 #! /usr/bin/env python
 
-import pygame, sys, re, random, copy
+import pygame
+import sys
+import re
+import random
+import copy
 from pygame.locals import *
 
+
 class Square:
-    def __init__ (self, img, coords,
-                  left = None, right = None, up = None, down = None,
-                  robot = None, symbol = None):
+    def __init__(self, img, coords,
+                 left=None, right=None, up=None, down=None,
+                 robot=None, symbol=None):
         self.img = img
         self.coords = coords
         self.left = left
         self.right = right
         self.up = up
         self.down = down
-        self.box = pygame.Rect (coords[0] * 40, coords[1] * 40, 40, 40)
+        self.box = pygame.Rect(coords[0] * 40, coords[1] * 40, 40, 40)
         self.robot = robot
         self.symbol = symbol
 
+
 class Robot:
-    def __init__ (self, img, color, square = None):
+    def __init__(self, img, color, square=None):
         self.img = img
         self.color = color
         self.square = square
 
+
 class Symbol:
-    def __init__ (self, img, color, type, square = None):
+    def __init__(self, img, color, type, square=None):
         self.img = img
         self.color = color
         self.type = type
         self.square = square
 
-def draw ():
-    screen.fill ((0xff, 0xff, 0xff))
-    
+
+def draw():
+    screen.fill((0xff, 0xff, 0xff))
+
     for row in grid:
         for square in row:
-            screen.blit (square.img, (square.coords[0] * 40,
-                                      square.coords[1] * 40))
+            screen.blit(square.img, (square.coords[0] * 40,
+                                     square.coords[1] * 40))
 
     for color in symbols:
         for form in symbols[color]:
             if symbols[color][form].square:
-                screen.blit (symbols[color][form].img,
-                             (symbols[color][form].square.coords[0] * 40,
-                              symbols[color][form].square.coords[1] * 40))
+                screen.blit(symbols[color][form].img,
+                            (symbols[color][form].square.coords[0] * 40,
+                             symbols[color][form].square.coords[1] * 40))
 
     if target:
-        screen.blit (target.img, (grid[7][7].box.center,
-                                  grid[8][8].box.center))
+        screen.blit(target.img, (grid[7][7].box.center,
+                                 grid[8][8].box.center))
 
     if red.square:
-        screen.blit (red.img, (red.square.coords[0] * 40,
-                               red.square.coords[1] * 40))
+        screen.blit(red.img, (red.square.coords[0] * 40,
+                              red.square.coords[1] * 40))
     if blue.square:
-        screen.blit (blue.img, (blue.square.coords[0] * 40,
-                                blue.square.coords[1] * 40))
+        screen.blit(blue.img, (blue.square.coords[0] * 40,
+                               blue.square.coords[1] * 40))
     if green.square:
-        screen.blit (green.img, (green.square.coords[0] * 40,
-                                 green.square.coords[1] * 40))
+        screen.blit(green.img, (green.square.coords[0] * 40,
+                                green.square.coords[1] * 40))
     if yellow.square:
-        screen.blit (yellow.img, (yellow.square.coords[0] * 40,
-                                  yellow.square.coords[1] * 40))
+        screen.blit(yellow.img, (yellow.square.coords[0] * 40,
+                                 yellow.square.coords[1] * 40))
 
     for row in grid:
         for square in row:
             if not square.right:
-                pygame.draw.line (screen, (0xff, 0x0, 0x0),
-                                  (square.coords[0] * 40 + 40 - 1,
-                                   square.coords[1] * 40),
-                                  (square.coords[0] * 40 + 40 - 1,
-                                   square.coords[1] * 40 + 40),
-                                  5)
+                pygame.draw.line(screen, (0xff, 0x0, 0x0),
+                                 (square.coords[0] * 40 + 40 - 1,
+                                  square.coords[1] * 40),
+                                 (square.coords[0] * 40 + 40 - 1,
+                                  square.coords[1] * 40 + 40),
+                                 5)
             if not square.left:
-                pygame.draw.line (screen, (0xff, 0x0, 0x0),
-                                  (square.coords[0] * 40,
-                                   square.coords[1] * 40),
-                                  (square.coords[0] * 40,
-                                   square.coords[1] * 40 + 40),
-                                  5)
+                pygame.draw.line(screen, (0xff, 0x0, 0x0),
+                                 (square.coords[0] * 40,
+                                  square.coords[1] * 40),
+                                 (square.coords[0] * 40,
+                                  square.coords[1] * 40 + 40),
+                                 5)
             if not square.up:
-                pygame.draw.line (screen, (0xff, 0x0, 0x0),
-                                  (square.coords[0] * 40,
-                                   square.coords[1] * 40),
-                                  (square.coords[0] * 40 + 40 - 1,
-                                   square.coords[1] * 40),
-                                  5)
+                pygame.draw.line(screen, (0xff, 0x0, 0x0),
+                                 (square.coords[0] * 40,
+                                  square.coords[1] * 40),
+                                 (square.coords[0] * 40 + 40 - 1,
+                                  square.coords[1] * 40),
+                                 5)
             if not square.down:
-                pygame.draw.line (screen, (0xff, 0x0, 0x0),
-                                  (square.coords[0] * 40,
-                                   square.coords[1] * 40 + 40),
-                                  (square.coords[0] * 40 + 40,
-                                   square.coords[1] * 40 + 40),
-                                  5)
+                pygame.draw.line(screen, (0xff, 0x0, 0x0),
+                                 (square.coords[0] * 40,
+                                  square.coords[1] * 40 + 40),
+                                 (square.coords[0] * 40 + 40,
+                                  square.coords[1] * 40 + 40),
+                                 5)
 
     if selected:
-        pygame.draw.rect (screen, (0xff, 0xff, 0x0), selected.box, 1)
+        pygame.draw.rect(screen, (0xff, 0xff, 0x0), selected.box, 1)
 
-def gengrid ():
+
+def gengrid():
     grid = []
-    for x in range (16):
+    for x in range(16):
         grid += [[]]
-        for y in range (16):
-            grid[x] += [Square (squareimg, (x, y))]
+        for y in range(16):
+            grid[x] += [Square(squareimg, (x, y))]
 
-    for x in range (16):
-        for y in range (16):
+    for x in range(16):
+        for y in range(16):
             if grid[x][y].coords[0] != 0:
                 grid[x][y].left = grid[x-1][y]
             if grid[x][y].coords[0] != 15:
@@ -114,12 +123,13 @@ def gengrid ():
             if grid[x][y].coords[1] != 15:
                 grid[x][y].down = grid[x][y+1]
 
-    grid = loadmap (grid)
+    grid = loadmap(grid)
 
     return grid
 
-def loadmap (grid):
-    #File line format: (x, y)
+
+def loadmap(grid):
+    # File line format: (x, y)
     # left right up down redbot bluebot greenbot yellowbot
     #  redbio redhex redtar redtri
     #  bluebio bluehex bluetar bluetri
@@ -127,14 +137,14 @@ def loadmap (grid):
     #  yellowbio yellowhex yellowtar yellowtri
     #   Example: (14, 10) 1 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 
-    file = open ("first.map")
-    line = file.readline ()
+    file = open("first.map")
+    line = file.readline()
     while line != "":
-        coords = re.findall (r'[0-9]*', line)
+        coords = re.findall(r'[0-9]*', line)
         data = []
         for num in coords:
             if num != '':
-                data.append (int (num))
+                data.append(int(num))
 
         coords = data[:2]
 
@@ -217,97 +227,101 @@ def loadmap (grid):
             symbols['yellow']['tri'].square = cursquare
             cursquare.symbol = symbols['yellow']['tri']
 
-        line = file.readline ()
+        line = file.readline()
 
     return grid
 
-def check_target (target):
+
+def check_target(target):
     if target.color == 'red':
         if target.square == red.square:
-            foundsymbols.append (target)
-            if len (foundsymbols) == 16:
-                end_game ()
-            while foundsymbols.count (target):
-                symcolor = random.choice (symbols.keys ())
-                symtype = random.choice (symbols[symcolor].keys ())
+            foundsymbols.append(target)
+            if len(foundsymbols) == 16:
+                end_game()
+            while foundsymbols.count(target):
+                symcolor = random.sample(set(symbols.keys()), 1)[0]
+                symtype = random.sample(set(symbols[symcolor].keys()), 1)[0]
                 target = symbols[symcolor][symtype]
     elif target.color == 'blue':
         if target.square == blue.square:
-            foundsymbols.append (target)
-            if len (foundsymbols) == 16:
-                end_game ()
-            while foundsymbols.count (target):
-                symcolor = random.choice (symbols.keys ())
-                symtype = random.choice (symbols[symcolor].keys ())
+            foundsymbols.append(target)
+            if len(foundsymbols) == 16:
+                end_game()
+            while foundsymbols.count(target):
+                symcolor = random.sample(set(symbols.keys()), 1)[0]
+                symtype = random.sample(set(symbols[symcolor].keys()), 1)[0]
                 target = symbols[symcolor][symtype]
     elif target.color == 'green':
         if target.square == green.square:
-            foundsymbols.append (target)
-            if len (foundsymbols) == 16:
-                end_game ()
-            while foundsymbols.count (target):
-                symcolor = random.choice (symbols.keys ())
-                symtype = random.choice (symbols[symcolor].keys ())
+            foundsymbols.append(target)
+            if len(foundsymbols) == 16:
+                end_game()
+            while foundsymbols.count(target):
+                symcolor = random.sample(set(symbols.keys()), 1)[0]
+                symtype = random.sample(set(symbols[symcolor].keys()), 1)[0]
                 target = symbols[symcolor][symtype]
     elif target.color == 'yellow':
         if target.square == yellow.square:
-            foundsymbols.append (target)
-            if len (foundsymbols) == 16:
-                end_game ()
-            while foundsymbols.count (target):
-                symcolor = random.choice (symbols.keys ())
-                symtype = random.choice (symbols[symcolor].keys ())
+            foundsymbols.append(target)
+            if len(foundsymbols) == 16:
+                end_game()
+            while foundsymbols.count(target):
+                symcolor = random.sample(set(symbols.keys()), 1)[0]
+                symtype = random.sample(set(symbols[symcolor].keys()), 1)[0]
                 target = symbols[symcolor][symtype]
 
     return target
 
-def end_game ():
-    print "done"
-    exit ()
 
-pygame.init ()
+def end_game():
+    print("done")
+    exit()
 
-screen = pygame.display.set_mode ((640, 640))
-pygame.display.set_caption ('Ricochet Robots')
 
-squareimg = pygame.image.load ("./square.png")
+pygame.init()
 
-red = Robot (pygame.image.load ("./redbot.png"), "red")
-blue = Robot (pygame.image.load ("./bluebot.png"), "blue")
-green = Robot (pygame.image.load ("./greenbot.png"), "green")
-yellow = Robot (pygame.image.load ("./yellowbot.png"), "yellow")
+screen = pygame.display.set_mode((640, 640))
+pygame.display.set_caption('Ricochet Robots')
+
+squareimg = pygame.image.load("./square.png")
+
+red = Robot(pygame.image.load("./redbot.png"), "red")
+blue = Robot(pygame.image.load("./bluebot.png"), "blue")
+green = Robot(pygame.image.load("./greenbot.png"), "green")
+yellow = Robot(pygame.image.load("./yellowbot.png"), "yellow")
 
 symbols = {'red': {}, 'blue': {}, 'green': {}, 'yellow': {}}
 
 for color in symbols:
-    symbols[color]['bio'] = Symbol (pygame.image.load
-                                    ("./" + color + "bio.png"), color, 'bio')
-    symbols[color]['hex'] = Symbol (pygame.image.load
-                                    ("./" + color + "hex.png"), color, 'hex')
-    symbols[color]['tar'] = Symbol (pygame.image.load
-                                    ("./" + color + "tar.png"), color, 'tar')
-    symbols[color]['tri'] = Symbol (pygame.image.load
-                                    ("./" + color + "tri.png"), color, 'tri')
+    symbols[color]['bio'] = Symbol(pygame.image.load
+                                   ("./" + color + "bio.png"), color, 'bio')
+    symbols[color]['hex'] = Symbol(pygame.image.load
+                                   ("./" + color + "hex.png"), color, 'hex')
+    symbols[color]['tar'] = Symbol(pygame.image.load
+                                   ("./" + color + "tar.png"), color, 'tar')
+    symbols[color]['tri'] = Symbol(pygame.image.load
+                                   ("./" + color + "tri.png"), color, 'tri')
 
-grid = gengrid ()
+grid = gengrid()
 
-mousepos = pygame.mouse.get_pos ()
+mousepos = pygame.mouse.get_pos()
 
 selected = None
-symcolor = random.choice (symbols.keys ())
-symtype = random.choice (symbols[symcolor].keys ())
+#print(random.sample(set(symbols.keys()), 1))
+symcolor = random.sample(set(symbols.keys()), 1)[0]
+symtype = random.sample(set(symbols[symcolor].keys()), 1)[0]
 #target = symbols[symcolor][symtype]
 target = symbols['red']['tar']
 
 foundsymbols = []
 
 while True:
-    for event in pygame.event.get ():
+    for event in pygame.event.get():
         if event.type == QUIT:
-            sys.exit ()
+            sys.exit()
         elif event.type == KEYDOWN:
             if event.key == K_ESCAPE:
-                sys.exit ()
+                sys.exit()
             elif event.key == K_LEFT:
                 if selected:
                     while selected.left and not selected.left.robot:
@@ -349,12 +363,12 @@ while True:
         elif event.type == MOUSEBUTTONDOWN:
             for row in grid:
                 for square in row:
-                    if square.box.collidepoint (mousepos) and square.robot:
+                    if square.box.collidepoint(mousepos) and square.robot:
                         selected = square
 
-    target = check_target (target)
+    target = check_target(target)
 
-    draw ()
-    pygame.display.flip ()
+    draw()
+    pygame.display.flip()
 
-    pygame.time.wait (100)
+    pygame.time.wait(100)
